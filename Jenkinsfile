@@ -6,21 +6,20 @@ node {
     }
 
     stage('Build & Test') {
-        // Mount volume & User Root (Ini udah bener, pertahankan)
+        // Mount volume & User Root (Wajib)
         docker.image(pythonImage).inside('-v jenkins-data:/var/jenkins_home:rw -u 0') {
             
-            // FIX: Masuk ke folder 'sources' dulu!
+            // Masuk ke folder sources
             dir('sources') {
-                echo '--- Posisi Sekarang ---'
-                sh 'pwd' // Cek folder aktif
-                sh 'ls -la' // Pastikan requirements.txt ada di sini
+                echo '--- Cek Lokasi ---'
+                sh 'ls -la' 
                 
-                echo '--- Install Dependencies ---'
-                // Sekarang requirements.txt pasti ketemu
-                sh 'pip install -r requirements.txt'
+                echo '--- Install Library Test ---'
+                // REVISI: Install pytest manual, jangan cari requirements.txt yg ga ada
+                sh 'pip install pytest'
                 
                 echo '--- Jalankan Test ---'
-                // pytest juga jalanin dari sini karena test file-nya ada di sini
+                // Jalanin test pake pytest
                 sh 'python -m pytest'
             }
         }
