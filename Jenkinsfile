@@ -6,22 +6,23 @@ node {
     }
 
     stage('Build & Test') {
-        // PERBAIKAN:
-        // 1. '-v jenkins-data:/var/jenkins_home:rw' -> Maksa container Python baca volume jenkins
-        // 2. '-u 0' -> Jalan sebagai Root biar gak error permission pas pip install
+        // Mount volume & User Root (Ini udah bener, pertahankan)
         docker.image(pythonImage).inside('-v jenkins-data:/var/jenkins_home:rw -u 0') {
             
-            echo '--- Debugging: Cek File ---'
-            sh 'ls -la' // Kita cek, filenya beneran nongol gak
-            
-            echo '--- Cek Python ---'
-            sh 'python --version'
-            
-            echo '--- Install Dependencies ---'
-            sh 'pip install -r requirements.txt'
-            
-            echo '--- Jalankan Test ---'
-            sh 'python -m pytest'
+            // FIX: Masuk ke folder 'sources' dulu!
+            dir('sources') {
+                echo '--- Posisi Sekarang ---'
+                sh 'pwd' // Cek folder aktif
+                sh 'ls -la' // Pastikan requirements.txt ada di sini
+                
+                echo '--- Install Dependencies ---'
+                // Sekarang requirements.txt pasti ketemu
+                sh 'pip install -r requirements.txt'
+                
+                echo '--- Jalankan Test ---'
+                // pytest juga jalanin dari sini karena test file-nya ada di sini
+                sh 'python -m pytest'
+            }
         }
     }
 }
